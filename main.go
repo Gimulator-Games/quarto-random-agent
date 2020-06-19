@@ -63,22 +63,19 @@ func newAgent() (*agent, error) {
 
 func (a *agent) listen() {
 	for {
+		fmt.Println("starting to listen")
 		obj := <-a.ch
-
-		data, ok := obj.Value.(string)
-		if !ok {
-			fmt.Println("could not cast value to []byte")
-			continue
-		}
+		fmt.Printf("starting to handle new object with key=%v and meta=%v", obj.Key, obj.Meta)
 
 		board := Board{}
-		err := json.Unmarshal([]byte(data), &board)
+		err := json.Unmarshal([]byte(obj.Value), &board)
 		if err != nil {
 			fmt.Println("could not unmarshal data to board struct:", err.Error())
 			continue
 		}
 
 		if board.Turn != name {
+			fmt.Println("turn does not match with agent's name")
 			continue
 		}
 
