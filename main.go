@@ -65,7 +65,7 @@ func (a *agent) listen() {
 	for {
 		fmt.Println("starting to listen")
 		obj := <-a.ch
-		fmt.Printf("starting to handle new object with key=%v and meta=%v", obj.Key, obj.Meta)
+		fmt.Printf("starting to handle new object with key=%v and meta=%v\n", obj.Key, obj.Meta)
 
 		board := Board{}
 		err := json.Unmarshal([]byte(obj.Value), &board)
@@ -93,7 +93,7 @@ func (a *agent) action(board Board) error {
 	for id := range board.Pieces {
 		isUsed := false
 		for _, pos := range board.Positions {
-			if pos.Piece == id {
+			if pos.PieceID == id {
 				isUsed = true
 			}
 		}
@@ -102,15 +102,23 @@ func (a *agent) action(board Board) error {
 		}
 	}
 
+	fmt.Println("====================================")
 	for _, pos := range board.Positions {
-		if pos.Piece == 0 {
+		if pos.PieceID == 0 {
 			avPositions = append(avPositions, pos)
+		} else {
+			fmt.Printf("ignore pos = %v\n", pos)
 		}
 	}
 
 	if len(avPieces) == 0 {
 		os.Exit(0)
 	}
+
+	fmt.Println("------------------------------------")
+	fmt.Println(avPieces, len(avPieces))
+	fmt.Println(avPositions, len(avPositions))
+	fmt.Println("------------------------------------")
 
 	n := rand.Intn(len(avPieces))
 
@@ -138,16 +146,16 @@ func (a *agent) action(board Board) error {
 
 //********************************* types
 type Board struct {
-	Pieces    map[int]Piece
-	Positions []Position
-	Turn      string
-	Picked    int
+	Pieces    map[int]Piece `json:"pieces"`
+	Positions []Position    `json:"positions"`
+	Turn      string        `json:"turn"`
+	Picked    int           `json:"picked"`
 }
 
 type Position struct {
-	X     int
-	Y     int
-	Piece int
+	X       int `json:"x"`
+	Y       int `json:"y"`
+	PieceID int `json:"piece-id"`
 }
 
 type Piece struct {
@@ -158,7 +166,7 @@ type Piece struct {
 }
 
 type Action struct {
-	Picked int
-	X      int
-	Y      int
+	Picked int `json:"picked"`
+	X      int `json:"x"`
+	Y      int `json:"y"`
 }
